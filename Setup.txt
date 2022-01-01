@@ -1,0 +1,6 @@
+Apache Module:		Rewrite
+Host:			{DB_Name}.dopamine/
+VirtualHost Dir:	{Base_Dir}/public/
+Configuration:		{Base_Dir}/vendor/session_helper.php
+			{Base_Dir}/app/config/config.php
+Required DB:		"dopamine.sql"				Contains ~ URL
