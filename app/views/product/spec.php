@@ -1,5 +1,5 @@
 <?php
-echo pageTitle('product/index', '<span class="float-right">'.privilegeButton('product/add').'</span>');
+echo pageTitle('product/index');
 
 // if drafts exist
 if (isset($data['data']->id)) {
@@ -18,8 +18,8 @@ if (isset($data['data']->id)) {
 					</div>
 					<div class="col">
 						<div class="row">
-							<div class="col"><a href="/product/approve/prev/<?php echo $data['data']->id; ?>" data-toggle="load-host" data-target="#content" class="btn btn-light btn-block d-flex justify-content-between align-items-center rounded-pill"><i class="fa fa-angle-left"></i><span>Previous</span><div></div></a></div>
-							<div class="col"><a href="/product/approve/next" data-toggle="load-host" data-target="#content" class="btn btn-light btn-block d-flex justify-content-between align-items-center rounded-pill"><div></div><span>Next</span><i class="fa fa-angle-right"></i></a></div>
+							<div class="col"><a href="/product/approve/prev/<?php echo $data['data']->id; ?>" data-toggle="load-host" data-target="#content" class="btn btn-translucent btn-block d-flex justify-content-between align-items-center rounded-pill"><i class="fa fa-angle-left"></i><span>Previous</span><div></div></a></div>
+							<div class="col"><a href="/product/approve/next" data-toggle="load-host" data-target="#content" class="btn btn-translucent btn-block d-flex justify-content-between align-items-center rounded-pill"><div></div><span>Next</span><i class="fa fa-angle-right"></i></a></div>
 						</div>
 					</div>
 				</div>
@@ -29,7 +29,7 @@ if (isset($data['data']->id)) {
 </div>
 <div class="row justify-content-center mb-3">
 	<div class="col-lg-6 col-md-8 col-sm-10">
-		<table class="table table-striped">
+		<table class="table table-striped table-light">
 			<tr>
 				<th>Name</th>
 				<td><?php echo $data['data']->dp_name; ?></td>
@@ -60,7 +60,7 @@ if (isset($data['data']->id)) {
 <div class="row justify-content-center mb-3">
 	<div class="col-lg-6 col-md-8 col-sm-10">
 		<span class="lead">Custom Field</span>
-		<table class="table table-striped">
+		<table class="table table-striped table-light">
 			<?php
 			$cfs = json_decode($data['data']->dp_custom_field);
 			foreach ($cfs as $cf => $v) {
@@ -75,8 +75,22 @@ if (isset($data['data']->id)) {
 </div>
 <div class="row justify-content-center">
 	<div class="col-lg-6 col-md-8 col-sm-10">
+		<?php
+		
+		$imgs = str_replace(DATADIR.DS.'draft'.DS.$data['data']->id.DS, DATA.'/draft/'.$data['data']->id.'/', glob(DATADIR.DS.'draft'.DS.$data['data']->id.DS.'*'));
+		foreach ($imgs as $img) {
+			echo '<div class="row mb-3"><div class="col-12"><img src="' . $img . '?qlt=50" class="sci"><span class="float-right"><label class="checkbox"><input type="checkbox" class="spc"><span>Clear</span></label></span></div></div>';
+		}
+
+		?>
 	</div>
 </div>
+<style>
+	.sci {
+		max-height: 300px;
+		max-width: 300px;
+	}
+</style>
 <?php } else { ?>
 
 <!-- If draft doest not exist / alert -->

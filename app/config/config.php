@@ -15,7 +15,7 @@ define('SITENAME', 'Dopamine');
 define('APP_VERSION', '1.0.0');
 
 define('DS', DIRECTORY_SEPARATOR);
-define('DATADIR', './../../dropship-seller/data');
+define('DATADIR', '.'.DS.'..'.DS.'..'.DS.'dropship-seller'.DS.'data');
 define('DATA', DS . 'data');
 define('ROW_LIMIT', 50);
 

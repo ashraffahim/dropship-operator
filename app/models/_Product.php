@@ -177,10 +177,14 @@ class _Product {
 	}
 
 	public function approve($id) {
-		$this->db->query('SELECT * FROM `draft_product` WHERE `id` = :id');
+		$this->db->query('SELECT * FROM `draft_product` WHERE `id` = :id AND `dp_status` = 1 AND `dp_operatorstamp` = ' . $_SESSION[CLIENT . 'user_id']->id);
 		$this->db->bind(':id', $id);
 		$ap = $this->db->single();
 
+		if (!$ap) {
+			return;
+		}
+		
 		$this->db->query('INSERT INTO `product` 
 		(
 			`p_name`, `p_handle`, `p_category`, `p_price`, `p_category_spec`, `p_custom_field`, `p_variation`, `p_status`, `p_o_status`, `p_sellerstamp`, `p_operatorstamp`, `p_timestamp`, `p_latimestamp`
@@ -189,6 +193,22 @@ class _Product {
 		(
 			"'.$ap->dp_name.'", "'.$ap->dp_handle.'", "'.$ap->dp_category.'", "'.$ap->dp_price.'", "'.addslashes($ap->dp_category_spec).'", "'.addslashes($ap->dp_custom_field).'", "'.$ap->dp_variation.'", 1, 1, '.$ap->dp_sellerstamp.', '.$ap->dp_operatorstamp.', '.$ap->dp_timestamp.', '.$ap->dp_latimestamp.'
 		)');
+		
+		$this->db->execute();
+		$id = $this->db->lastInsertId();
+
+		mkdir(DATADIR.DS.'product'.DS.$id);
+
+		$imgs = glob(DATADIR.DS.'draft'.DS.$ap->id.DS.'*');
+		foreach ($imgs as $img) {
+			file_put_contents(DATADIR.DS.'product'.DS.$id.DS.basename($img), file_get_contents($img));
+			unlink($img);
+		}
+
+		// remove folder
+		rmdir(DATADIR.DS.'draft'.DS.$ap->id);
+
+		$this->db->query('DELETE FROM `draft_product` WHERE `id` = ' . $ap->id);
 		$this->db->execute();
 	}
 }
