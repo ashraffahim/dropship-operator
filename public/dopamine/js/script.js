@@ -71,7 +71,6 @@ $(document).ready(function() {
 
 });
 
-
 window.onpopstate = (function() {
 	$(SELECTOR.content).loadInto(location.pathname + location.search, function(c) {
 		__construct(c);
@@ -79,6 +78,9 @@ window.onpopstate = (function() {
 });
 
 function __construct(c) {
+	
+	plugin();
+
 	if (c === undefined) {
 		c = $(SELECTOR.content);
 	} else {
@@ -104,6 +106,32 @@ function __construct(c) {
 		container: 'body',
 		trigger: 'focus',
 		html: true
+	});
+}
+
+function plugin() {
+	// plugin load
+	// remove previous plugins
+	$('script.plgn, link.plgn').remove();
+	$('[data-plugin]').each(function() {
+		var p = $(this).data('plugin');
+		p = p.replace(' ', '').split(',');
+		// each plugin
+		for (var s = 0; s < p.length; s++) {
+			// each module in plugin
+			for (var m = 0; m < MODULE_CONFIG[p[s]].length; m++) {
+				// js plugin
+				if (MODULE_CONFIG[p[s]][m].match(/^.*\.js$/)) {
+					$('body').append('<script src="' + MODULE_CONFIG[p[s]][m] + '" class="plgn"></script>');
+				}
+				// css plugin
+				if (MODULE_CONFIG[p[s]][m].match(/^.*\.css$/)) {
+					$('head').append('<link rel="stylesheet" href="' + MODULE_CONFIG[p[s]][m] + '" class="plgn">');
+				}
+			}
+		}
+		// remove plugin attr
+		$(this).removeAttr('data-plugin');
 	});
 }
 
@@ -137,7 +165,7 @@ function statusToHTML(data, elem) {
 				audio.play();
 				break;
 
-			case data.hasOwnProperty('cardTag') :
+			case data.hasOwnProperty('card-tag') :
 				optR.cardTag = Object.assign(defaults, data.cardTag);
 				$(elem).html('<div class="card-tag card-tag-'+optR.cardTag.type+'"">'
 				+optR.cardTag.body+'</div>');

@@ -125,40 +125,40 @@ class _Product {
 			$ps = $this->db->single();
 			
 			if ($ps) {
-				$this->db->query('UPDATE `draft_product` SET `dp_operatorstamp` = ' . $_SESSION[CLIENT . 'user_id'] . ' WHERE `id` = ' . $ps->id);
+				$this->db->query('UPDATE `draft_product` SET `dp_operatorstamp` = ' . $_SESSION[CLIENT . 'user_id']->id . ' WHERE `id` = ' . $ps->id);
 				$this->db->execute();
 				return $ps;
 			} else {
 				return [
-					'alrt' => [
-						't' => '',
-						'b' => ''
+					'card-tag' => [
+						'type' => 'info',
+						'body' => '<b>No more drafts</b>'
 					]
 				];
 			}
 
-		} elseif (is_int($id)) {
+		} elseif (preg_match('/^[0-9]+$/', $id)) {
 
-			$this->db->query('SELECT `dp`.*, `s`.`id` `sid`, CONCAT(`s`.`s_first_name`, " ", `s`.`s_last_name`) `seller` FROM `draft_product` `dp` JOIN `seller` `s` ON (`dp`.`dp_sellerstamp` = `s`.`id`) WHERE `dp`.`id` = :id AND (`dp`.`dp_operatorstamp` IS NULL OR `dp`.`dp_operatorstamp` = ' . $_SESSION[CLIENT . 'user_id'] . ')');
+			$this->db->query('SELECT `dp`.*, `s`.`id` `sid`, CONCAT(`s`.`s_first_name`, " ", `s`.`s_last_name`) `seller` FROM `draft_product` `dp` JOIN `seller` `s` ON (`dp`.`dp_sellerstamp` = `s`.`id`) WHERE `dp`.`id` = :id AND (`dp`.`dp_operatorstamp` IS NULL OR `dp`.`dp_operatorstamp` = ' . $_SESSION[CLIENT . 'user_id']->id . ')');
 			$this->db->bind(':id', $id, $this->db->PARAM_INT);
 			$ps = $this->db->single();
 			
 			if ($ps) {
-				$this->db->query('UPDATE `draft_product` SET `dp_operatorstamp` = ' . $_SESSION[CLIENT . 'user_id'] . ' WHERE `id` = ' . $ps->id);
+				$this->db->query('UPDATE `draft_product` SET `dp_operatorstamp` = ' . $_SESSION[CLIENT . 'user_id']->id . ' WHERE `id` = ' . $ps->id);
 				$this->db->execute();
 				return $ps;
 			} else {
 				return [
-					'alrt' => [
-						't' => '',
-						'b' => ''
+					'card-tag' => [
+						'type' => 'danger',
+						'body' => '<b>Invalid ID</b>'
 					]
 				];
 			}
 
 		} else {
 			
-			$this->db->query('SELECT `dp`.*, `s`.`id` `sid`, CONCAT(`s`.`s_first_name`, " ", `s`.`s_last_name`) `seller` FROM `draft_product` `dp` JOIN `seller` `s` ON (`dp`.`dp_sellerstamp` = `s`.`id`) WHERE `dp`.`id` < :id AND `dp`.`dp_operatorstamp` = ' . $_SESSION[CLIENT . 'user_id'] . ' LIMIT 1');
+			$this->db->query('SELECT `dp`.*, `s`.`id` `sid`, CONCAT(`s`.`s_first_name`, " ", `s`.`s_last_name`) `seller` FROM `draft_product` `dp` JOIN `seller` `s` ON (`dp`.`dp_sellerstamp` = `s`.`id`) WHERE `dp`.`id` < :id AND `dp`.`dp_operatorstamp` = ' . $_SESSION[CLIENT . 'user_id']->id . ' LIMIT 1');
 			$this->db->bind(':id', $p, $this->db->PARAM_INT);
 			$ps = $this->db->single();
 			
@@ -166,14 +166,30 @@ class _Product {
 				return $ps;
 			} else {
 				return [
-					'alrt' => [
-						't' => '',
-						'b' => ''
+					'card-tag' => [
+						'type' => 'danger',
+						'body' => '<b>No previous draft</b>'
 					]
 				];
 			}
 
 		}
+	}
+
+	public function approve($id) {
+		$this->db->query('SELECT * FROM `draft_product` WHERE `id` = :id');
+		$this->db->bind(':id', $id);
+		$ap = $this->db->single();
+
+		$this->db->query('INSERT INTO `product` 
+		(
+			`p_name`, `p_handle`, `p_category`, `p_price`, `p_category_spec`, `p_custom_field`, `p_variation`, `p_status`, `p_o_status`, `p_sellerstamp`, `p_operatorstamp`, `p_timestamp`, `p_latimestamp`
+		)
+		 VALUES 
+		(
+			"'.$ap->dp_name.'", "'.$ap->dp_handle.'", "'.$ap->dp_category.'", "'.$ap->dp_price.'", "'.addslashes($ap->dp_category_spec).'", "'.addslashes($ap->dp_custom_field).'", "'.$ap->dp_variation.'", 1, 1, '.$ap->dp_sellerstamp.', '.$ap->dp_operatorstamp.', '.$ap->dp_timestamp.', '.$ap->dp_latimestamp.'
+		)');
+		$this->db->execute();
 	}
 }
 

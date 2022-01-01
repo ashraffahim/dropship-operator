@@ -1,7 +1,10 @@
 <?php
 echo pageTitle('product/index', '<span class="float-right">'.privilegeButton('product/add').'</span>');
+
+// if drafts exist
+if (isset($data['data']->id)) {
 ?>
-<div class="row">
+<div class="row" data-plugin="pa">
 	<div class="col">
 		<div class="card shadow">
 			<div class="card-body">
@@ -9,14 +12,14 @@ echo pageTitle('product/index', '<span class="float-right">'.privilegeButton('pr
 					<div class="col"></div>
 					<div class="col">
 						<div class="row">
-							<div class="col"><button class="btn btn-link text-danger btn-block">Disapprove</button></div>
-							<div class="col"><button class="btn btn-theme btn-block">Approve</button></div>
+							<div class="col"><button class="btn btn-link text-danger btn-block disapprove-draft">Disapprove</button></div>
+							<div class="col"><button class="btn btn-theme btn-block approve-draft" data-approve="<?php echo $data['data']->id; ?>">Approve</button></div>
 						</div>
 					</div>
 					<div class="col">
 						<div class="row">
-							<div class="col"><a href="/product/spec/prev/<?php echo $data['data']->id; ?>" class="btn btn-light btn-block d-flex justify-content-between align-items-center rounded-pill"><i class="fa fa-angle-left"></i><span>Previous</span><div></div></a></div>
-							<div class="col"><a href="/product/spec/next" class="btn btn-light btn-block d-flex justify-content-between align-items-center rounded-pill"><div></div><span>Next</span><i class="fa fa-angle-right"></i></a></div>
+							<div class="col"><a href="/product/approve/prev/<?php echo $data['data']->id; ?>" data-toggle="load-host" data-target="#content" class="btn btn-light btn-block d-flex justify-content-between align-items-center rounded-pill"><i class="fa fa-angle-left"></i><span>Previous</span><div></div></a></div>
+							<div class="col"><a href="/product/approve/next" data-toggle="load-host" data-target="#content" class="btn btn-light btn-block d-flex justify-content-between align-items-center rounded-pill"><div></div><span>Next</span><i class="fa fa-angle-right"></i></a></div>
 						</div>
 					</div>
 				</div>
@@ -25,8 +28,6 @@ echo pageTitle('product/index', '<span class="float-right">'.privilegeButton('pr
 	</div>
 </div>
 <div class="row justify-content-center mb-3">
-	<div class="col-12">
-	</div>
 	<div class="col-lg-6 col-md-8 col-sm-10">
 		<table class="table table-striped">
 			<tr>
@@ -76,3 +77,34 @@ echo pageTitle('product/index', '<span class="float-right">'.privilegeButton('pr
 	<div class="col-lg-6 col-md-8 col-sm-10">
 	</div>
 </div>
+<?php } else { ?>
+
+<!-- If draft doest not exist / alert -->
+
+<div class="row">
+	<div class="col">
+		<div class="card shadow">
+			<div class="card-body">
+				<div class="row">
+					<div class="col"></div>
+					<div class="col"></div>
+					<div class="col">
+						<div class="row">
+							<div class="col"><a href="/product/approve/next" data-toggle="load-host" data-target="#content" class="btn btn-light btn-block d-flex justify-content-between align-items-center rounded-pill"><div></div><span>Check for updates</span><i class="fa fa-angle-right"></i></a></div>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+</div>
+
+<div class="row justify-content-center">
+	<div class="col-lg-4 col-md-6 col-sm-8">
+		<div class="card-tag card-tag-<?php echo $data['data']['card-tag']['type']; ?>">
+			<?php echo $data['data']['card-tag']['body']; ?>
+		</div>
+	</div>
+</div>
+
+<?php } ?>

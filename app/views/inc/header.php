@@ -16,6 +16,7 @@
   <script src="/bootstrap/dist/js/popper.min.js"></script>
   <script src="/bootstrap/dist/js/bootstrap.min.js"></script>
   <script src="/dopamine/js/form.js"></script>
+  <script src="/dopamine/js/module.config.js"></script>
   <script src="/dopamine/js/script.js"></script>
   </head>
   <body>

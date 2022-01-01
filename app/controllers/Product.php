@@ -24,14 +24,18 @@ class Product extends Controller {
 		];
 	}
 
-	public function approve($id = false) {
+	public function approve($id = false, $p = false) {
+		if ($_SERVER['REQUEST_METHOD'] == 'POST') {
+			$this->product->approve($_POST['id']);
+			return;
+		}
 		if ($this->isPageChange()) {
 			$this->sanitizeInputGet();
 			$data = $this->product->pendingApprovalList($this->getTableRowOrder(), $this->getLoadPage());
 			$this->view('product/row', ['data' => $data]);
 		} else {
 			if ($id) {
-				$data = $this->product->spec($id);
+				$data = $this->product->spec($id, $p);
 				$this->view('product/spec', [
 					'data' => $data
 				]);

@@ -196,7 +196,7 @@ class _User {
 
 		if ((bool) $usernameAvaiability && $usernameAvaiability != $id) {
 			return [
-				'cardTag' => [
+				'card-tag' => [
 					'type' => 'warning',
 					'body' => '<b>Username is in use!</b> Try another one'
 				]
@@ -205,7 +205,7 @@ class _User {
 
 		if ((bool) $emailAvaiability && $emailAvaiability != $id) {
 			return [
-				'cardTag' => [
+				'card-tag' => [
 					'type' => 'warning',
 					'body' => '<b>Email is in use!</b> Please check again'
 				]
@@ -226,7 +226,7 @@ class _User {
 
 			} else {
 				return [
-					'cardTag' => [
+					'card-tag' => [
 						'type' => 'danger',
 						'body' => 'The file you\'ve uploaded is <b>corrupted</b>'
 					]
