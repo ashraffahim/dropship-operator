@@ -45,6 +45,13 @@ if (isset($data['data']->id)) {
 				<td><?php echo $data['data']->dp_price; ?></td>
 			</tr>
 			<tr>
+				<th>Brand</th>
+				<td><?php echo $data['data']->dp_brand; ?></td>
+
+				<th>Model</th>
+				<td><?php echo $data['data']->dp_model; ?></td>
+			</tr>
+			<tr>
 				<th>Seller</th>
 				<td><?php echo $data['data']->seller . ' #' . $data['data']->sid; ?></td>
 
@@ -54,6 +61,26 @@ if (isset($data['data']->id)) {
 					Last activity: <?php echo date('d F, Y h:i:s', $data['data']->dp_latimestamp); ?>
 				</td>
 			</tr>
+			<tr>
+				<th>Description</th>
+				<td colspan="3"><?php echo $data['data']->description; ?></td>
+			</tr>
+		</table>
+	</div>
+</div>
+<div class="row justify-content-center mb-3">
+	<div class="col-lg-6 col-md-8 col-sm-10">
+		<span class="lead">Category Specification</span>
+		<table class="table table-striped table-light">
+			<?php
+			$css = json_decode($data['data']->dp_category_spec);
+			foreach ($css as $c => $s) {
+				echo '<tr>
+				<th>' . $c . '</th>
+				<td>' . $s . '</td>
+				</tr>';
+			}
+			?>
 		</table>
 	</div>
 </div>

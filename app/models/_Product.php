@@ -187,11 +187,11 @@ class _Product {
 		
 		$this->db->query('INSERT INTO `product` 
 		(
-			`p_name`, `p_handle`, `p_category`, `p_price`, `p_category_spec`, `p_custom_field`, `p_variation`, `p_status`, `p_o_status`, `p_sellerstamp`, `p_operatorstamp`, `p_timestamp`, `p_latimestamp`
+			`p_name`, `p_handle`, `p_category`, `p_brand`, `p_model`, `p_description`, `p_price`, `p_category_spec`, `p_custom_field`, `p_variation`, `p_status`, `p_o_status`, `p_sellerstamp`, `p_operatorstamp`, `p_timestamp`, `p_latimestamp`
 		)
 		 VALUES 
 		(
-			"'.$ap->dp_name.'", "'.$ap->dp_handle.'", "'.$ap->dp_category.'", "'.$ap->dp_price.'", "'.addslashes($ap->dp_category_spec).'", "'.addslashes($ap->dp_custom_field).'", "'.$ap->dp_variation.'", 1, 1, '.$ap->dp_sellerstamp.', '.$ap->dp_operatorstamp.', '.$ap->dp_timestamp.', '.$ap->dp_latimestamp.'
+			"'.$ap->dp_name.'", "'.$ap->dp_handle.'", "'.$ap->dp_category.'", "'.$ap->dp_brand.'", "'.$ap->dp_model.'", "'.$ap->dp_description.'", "'.$ap->dp_price.'", "'.addslashes($ap->dp_category_spec).'", "'.addslashes($ap->dp_custom_field).'", "'.$ap->dp_variation.'", 1, 1, '.$ap->dp_sellerstamp.', '.$ap->dp_operatorstamp.', '.$ap->dp_timestamp.', '.$ap->dp_latimestamp.'
 		)');
 		
 		$this->db->execute();
