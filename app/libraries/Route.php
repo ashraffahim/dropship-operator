@@ -1,6 +1,6 @@
 <?php
 
-namespace Libraries;
+namespace libraries;
 
 class Route {
 
@@ -9,7 +9,7 @@ class Route {
 	public function hasAccess($controller, $action) {
 
 		$hasAccess = false;
-		if ($controller.$action != '' && !in_array($controller, ['Login', 'Error'])) {
+		if ($controller.$action != '' && !in_array($controller, ['controllers\\Login', 'controllers\\Error'])) {
 
 			$urlIndex = $controller . '/' . $action;
 			$urlPrivilege = isset($_SESSION[CLIENT . 'user_privilege'][$urlIndex]) ? (bool) $_SESSION[CLIENT . 'user_privilege'][$urlIndex]->permit : false;
@@ -38,20 +38,20 @@ class Route {
 		$url = $this->removeQueryStringVariables($query_string);
 		$this->parseQueryString($url);
 		
-		$_controller = $this->params['controller'];
-		$controller = $this->convertToStudlyCaps($_controller);
-		$controller = 'Controllers\\' . $controller;
+		$controller = $this->params['controller'] != '' ? $this->params['controller'] : 'home';
+		$controller = $this->convertToStudlyCaps($controller);
+		$controller = 'controllers\\' . $controller;
 		unset($this->params['controller']);
 
-		$_action = ( isset( $this->params['action'] ) ? $this->params['action'] : 'index' );
-		$action = $this->convertToCamelCaps($_action);
+		$action = $this->params['action'] != '' ? $this->params['action'] : 'index';
+		$action = $this->convertToCamelCaps($action);
 		unset($this->params['action']);
 
 		if (class_exists($controller)) {
 
-			if (isset($_SESSION[CLIENT . 'user_id']) || $_controller == 'Login') {
+			if (isset($_SESSION[CLIENT . 'user_id']) || $controller == 'controllers\\Login') {
 
-				if ($this->hasAccess($_controller, $_action)) {
+				if ($this->hasAccess($controller, $action)) {
 		
 					$controller_object = new $controller();
 
@@ -61,15 +61,15 @@ class Route {
 					}
 		
 				} else {
-					redir("/Error/ad");
+					redir("/error/ad");
 				}
 
 			} else {
-				redir("/Login/index");
+				redir("/login/index");
 			}
 
 		} else {
-			redir("/Error/ir");
+			redir("/error/ir");
 		}
 
 	}

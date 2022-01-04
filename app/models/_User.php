@@ -168,7 +168,7 @@ class _User {
 	public function loadPrivilege($id) {
 
 		if ($id == '1') {
-			$this->db->query('SELECT DISTINCT `nav`.`title`, `root`.`title` AS `root`, `nav`.`icon`, `nav`.`query_string`, "1" AS `permit` FROM `dop`.`sys_nav` `nav` JOIN `dop`.`sys_nav` `root` ON (`nav`.`root` = `root`.`id`) WHERE NOT `nav`.`query_string` = "" OR NOT `nav`.`query_string` = NULL');
+			$this->db->query('SELECT DISTINCT `nav`.`title`, `root`.`title` AS `root`, `nav`.`icon`, `nav`.`query_string`, "1" AS `permit` FROM `sys_nav` `nav` JOIN `sys_nav` `root` ON (`nav`.`root` = `root`.`id`) WHERE NOT `nav`.`query_string` = "" OR NOT `nav`.`query_string` = NULL');
 		} else {
 			$this->db->query('SELECT `title`, `root_name` AS `root`, `icon`, `query_string`, `permit` FROM (' . $this->db->view('privilege') . ') `nav` WHERE `uid` = :id OR (`uid` = 0)');
 			$this->db->bind(':id', $id, $this->db->PARAM_INT);
@@ -214,7 +214,7 @@ class _User {
 
 		if ($file['tmp_name'] != '') {
 
-			if ($file['error'] == 0 && preg_match('/image\/.*/', mime_content_type($file['tmp_name']))) {
+			if ($file['error'] == 0 && in_array(pathinfo($file['name'])['extension'], ['jpg', 'jpeg', 'png', 'gif', 'webp', 'jfif', 'svg'])) {
 				
 				$ext = pathinfo($file['name'])['extension'];
 

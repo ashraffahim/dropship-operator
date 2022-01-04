@@ -32,7 +32,7 @@ class Login extends Controller {
 
 				$data = [
 					'error' => 'Invalid credentials',
-					'redir' => '/Login/index'
+					'redir' => '/login/index'
 				];
 
 			}
@@ -45,20 +45,28 @@ class Login extends Controller {
 		
 		} else {
 
-			redir('/Home/index');
+			redir('/home/index');
 
 		}
 
 	}
 
 	public function loadPrivilege() {
+
 		if (isset($_SESSION[CLIENT . 'user_id']) && !isset($_SESSION[CLIENT . 'user_privilege'])) {
 			$userPriv = $positionPriv = [];
 			$userPriv = (array) $this->user->loadPrivilege($_SESSION[CLIENT . 'user_id']->id);
 			if ($_SESSION[CLIENT . 'user_id']->position != 0) {
 				$positionPriv = (array) $this->user->loadPrivilege($_SESSION[CLIENT . 'user_id']->position);
 			}
-			$_SESSION[CLIENT . 'user_privilege'] = array_merge($positionPriv, $userPriv);
+			$merged = array_merge($positionPriv, $userPriv);
+			$mergeFormatted = [];
+			foreach ($merged as $k => $m) {
+				$p = explode('/', $k);
+				$i = str_replace(' ', '', ucwords(str_replace('-', ' ', $p[0]))) . '/' . lcfirst(str_replace(' ', '', ucwords(str_replace('-', ' ', $p[1]))));
+				$mergeFormatted[$i] = $m;
+			}
+			$_SESSION[CLIENT . 'user_privilege'] = $mergeFormatted;
 		}
 
 		$this->checkDataDir();
@@ -66,8 +74,8 @@ class Login extends Controller {
 	}
 
 	public function checkDataDir() {
-		if (!is_dir(DATA)) {
-			mkdir(DATA);
+		if (!is_dir(DATADIR)) {
+			mkdir(DATADIR);
 		}
 	}
 

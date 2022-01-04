@@ -52,15 +52,13 @@ class Configuration extends Controller {
 
 	public function item($id, $g, $n) {
 
-		if ($_SERVER['REQUEST_METHOD'] == 'GET') {
-			$_GET = filter_input_array(INPUT_GET, FILTER_SANITIZE_STRING);
-			$this->view('configuration/item', [
-				'data' => $this->config->navigationView($id),
-				'id' => $id,
-				'group' => $g,
-				'name' => $n
-			]);
-		}
+		$_GET = filter_input_array(INPUT_GET, FILTER_SANITIZE_STRING);
+		$this->view('configuration/item', [
+			'data' => $this->config->navigationView($id),
+			'id' => $id,
+			'group' => $g,
+			'name' => $n
+		]);
 
 	}
 

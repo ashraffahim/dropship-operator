@@ -1,6 +1,6 @@
 <?php
 
-namespace Libraries;
+namespace libraries;
 
 class Controller {
 
@@ -35,6 +35,7 @@ class Controller {
 	}
 
 	public function status($data = []) {
+		$ajax = false;
 
 		if (isset($_SERVER['HTTP_X_REQUESTED_WITH']) && $_SERVER['HTTP_X_REQUESTED_WITH'] == 'XMLHttpRequest') {
 			$ajax = true;

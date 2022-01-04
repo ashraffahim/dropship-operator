@@ -3,7 +3,7 @@
   <head>
   <title>Dopamine</title>
   <meta http-equiv="x-ua-compatible" content="ie=edge" />
-  <meta name="viewport" content="ie=edge" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 
   <link rel="icon" href="/dopamine/images/favicon.png" type="image/x-icon">
 

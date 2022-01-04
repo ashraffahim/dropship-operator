@@ -1,8 +1,8 @@
 <?php
 
-namespace Controllers;
+namespace controllers;
 
-use Libraries\Controller;
+use libraries\Controller;
 
 class Error extends Controller {
 	
