@@ -63,7 +63,7 @@ if (isset($data['data']->id)) {
 			</tr>
 			<tr>
 				<th>Description</th>
-				<td colspan="3"><?php echo $data['data']->description; ?></td>
+				<td colspan="3"><?php echo $data['data']->dp_description; ?></td>
 			</tr>
 		</table>
 	</div>

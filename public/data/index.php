@@ -5,11 +5,11 @@ $filename = '../../../dropship-seller/data/' . explode('&', $_SERVER['QUERY_STRI
 if (file_exists($filename)) {
 
 	$quality = isset($_GET['qlt']) ? $_GET['qlt'] : 0;
-	$resource = imagecreatefromjpeg($filename);
-	$mime_content_type = 'image/jpeg';
+	$ext = pathinfo($filename)['extension'];
+	$mime_content_type = 'image/' . $ext;
 
 	header('Content-type: ' . $mime_content_type);
-	echo imagejpeg($resource, null, $quality);
+	echo file_get_contents($filename);
 	
 } else {
 

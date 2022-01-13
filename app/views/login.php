@@ -64,7 +64,9 @@
 		<div class="col-md-6 col-sm-12">
 			<div class="login-form">
 
-				<form method="post" action="/Login/index" class="collapse show form">
+				<?php if (!isset($_SESSION['tmp_vcode'])) : ?>
+
+				<form method="post" action="/login/index" class="collapse show form">
 						<?php if (isset($data['error'])) : ?>
 					<div id="loginTag" class="card-tag card-tag-danger collapse show">
 							<i class="fa fa-exclamation-triangle text-danger fa-2x mr-2"></i>
@@ -92,7 +94,7 @@
 					</div>
 				</form>
 
-				<form method="post" action="/Login/signup" id="signup-form" class="collapse form silent">
+				<form method="post" action="/login/signup" id="signup-form" class="collapse form silent">
 					<div class="form-group row">
 						<input type="text" class="form-control col-md ml-md-3 mr-md-1 mx-3" name="first_name" placeholder="First name" required>
 						<input type="text" class="form-control col-md mr-md-3 mx-3 mt-md-0 mt-3" name="last_name" placeholder="Last name" required>
@@ -113,6 +115,23 @@
 						<button type="submit" class="btn btn-theme col ml-1">Sign up</button>
 					</div>
 				</form>
+
+				<?php else : ?>
+				<form method="post" action="/login/signup" class="form">
+					<?php if (isset($data['status']['card-tag'])) : ?>
+					<div class="card-tag card-tag-<?php echo $data['status']['card-tag']['type']; ?>">
+						<?php echo $data['status']['card-tag']['body']; ?>
+					</div>
+					<?php endif; ?>
+					<div class="form-group">
+						<input type="text" class="form-control" name="vcode" placeholder="Verification Code" required>
+					</div>
+					<div class="row p-3">
+						<a href="/login/clear-tmp" class="btn btn-light col">Clear</a>
+						<button type="submit" class="btn btn-theme col ml-1">Verify</button>
+					</div>
+				</form>
+				<?php endif; ?>
 
 			</div>
 		</div>
@@ -143,7 +162,7 @@
 
 	$('#username, #email').keyup(function(){
 		if($(this).is('#username')) {
-			$.post('/Login/availability', 'username=' + $('#username').val(), function(data) {
+			$.post('/login/availability', 'username=' + $('#username').val(), function(data) {
 				data = JSON.parse(data);
 				if(data.status || $('#username').val() == '') {
 					$('#signup-form').submit(function() { event.preventDefault(); });
@@ -156,7 +175,7 @@
 				}
 			});
 		} else {
-			$.post('/Login/availability', 'email=' + $('#email').val(), function(data) {
+			$.post('/login/availability', 'email=' + $('#email').val(), function(data) {
 				data = JSON.parse(data);
 				if(data.status || $('#email').val() == '') {
 					$('#signup-form').submit(function() { event.preventDefault(); });

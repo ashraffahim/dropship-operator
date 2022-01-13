@@ -101,21 +101,40 @@ class Login extends Controller {
 		if ($this->RMisPost()) {
 
 			$this->sanitizeInputPost();
-			$status = $this->user->signup($_POST);
+			if (isset($_POST['email'])) {
+				$status = $this->user->setTemp($_POST);
+			} elseif (isset($_POST['vcode'])) {
+				$status = $this->user->verify($_POST);
+			}
 
 			$this->status($status);
+
+			if ($status['success']) {
+				$user_id = $this->user->login($_SESSION['tmp_email'], md5($_SESSION['tmp_password']));
+				if ($user_id) {
+					
+					$_SESSION[CLIENT . 'user_id'] = $user_id;
+					$this->loadPrivilege();
+					$this->user->clearTmp();
+					redir('/');
+
+				}
+			}
+
+			$this->view('login', ['status' => $status]);
 		
 		}
 
 	}
 
-	public function logout() {
-		session_destroy();
-		redir('/Login/index');
+	public function clearTmp() {
+		$this->user->clearTmp();
+		redir('/login/index');
 	}
 
-	public function forgotPassword() {
-		$phpMailer = new \Libraries\PHPMailer\PHPMailer;
+	public function logout() {
+		session_destroy();
+		redir('/login/index');
 	}
 
 }

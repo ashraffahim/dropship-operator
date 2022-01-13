@@ -29,23 +29,88 @@ class _User {
 	
 	}
 
-	public function signup($data) {
+	public function setTemp($data) {
+		if (!isset($_SESSION['tmp_email'])) {
+			$_SESSION['tmp_first_name'] = $data['first_name'];
+			$_SESSION['tmp_last_name'] = $data['last_name'];
+			$_SESSION['tmp_username'] = $data['username'];
+			$_SESSION['tmp_email'] = $data['email'];
+			$_SESSION['tmp_password'] = $data['password'];
+			$this->sendVCode();
+		}
+	}
 
-		if (isset($this->availability(['username' => $data['username']])->exists)) {
+	public function setVCode() {
+		$_SESSION['tmp_vcode_attempt'] = 0;
+		$_SESSION['tmp_vcode'] = rand(100000,999999);
+	}
+
+	public function verify($code) {
+		if ($code['vcode'] == $_SESSION['tmp_vcode']) {
+			$this->signup();
+		} else {
+
+			// Renew verification code
+			if ($_SESSION['tmp_vcode_attempt'] > 5) {
+				$this->sendVCode();
+				return [
+					'card-tag' => [
+						'type' => 'danger',
+						'body' => '<i data-feather="alert-octagon"></i><b class="ml-2">Too many attempts!</b> Please enter the new verification code.'
+					]
+				];
+			}
+
+			// Log attempt
+			$_SESSION['tmp_vcode_attempt']++;
 			return [
-				'toast' => [
-					'title' => 'Signup',
-					'icon' => 'user',
+				'card-tag' => [
+					'type' => 'warning',
+					'body' => '<i data-feather="alert-circle"></i><b class="ml-2">Incorrect code!</b> Try again.'
+				]
+			];
+		}
+	}
+
+	public function sendVCode() {
+
+		$this->setVCode();
+
+		//mail($_SESSION['tmp_user_email'], 'Menu Verification', $_SESSION['tmp_user_vcode']);
+		$this->db->mail($_SESSION['tmp_email'], 'Confrim Signup', "<h3>{$_SESSION['tmp_vcode']}</h3>", '');
+	}
+
+	public function resendVCode() {
+		$this->db->mail($_SESSION['tmp_email'], 'Confrim Signup', "<h3>{$_SESSION['tmp_vcode']}</h3>", '');
+	}
+
+	public function clearTmp() {
+		unset($_SESSION['tmp_first_name']);
+		unset($_SESSION['tmp_last_name']);
+		unset($_SESSION['tmp_email']);
+		unset($_SESSION['tmp_username']);
+		unset($_SESSION['tmp_password']);
+		unset($_SESSION['tmp_vcode']);
+		unset($_SESSION['tmp_vcode_attempt']);
+	}
+
+	public function signup() {
+
+		if (isset($this->availability(['username' => $_SESSION['tmp_username']])->exists)) {
+			return [
+				'success' => false,
+				'card-tag' => [
+					'type' => 'danger',
 					'body' => 'Username exists. Try using a different username.'
 				]
 			];
 		}
 
-		if (isset($this->availability(['email' => $data['email']])->exists)) {
+		if (isset($this->availability(['email' => $_SESSION['tmp_email']])->exists)) {
 			return [
-				'toast' => [
-					'title' => 'Signup',
-					'icon' => 'user',
+				'success' => false,
+				'card-tag' => [
+					'type' => 'danger',
 					'body' => 'Email exists. Contact admin if password needs to be changed.'
 				]
 			];
@@ -53,18 +118,18 @@ class _User {
 
 
 		$this->db->query('INSERT INTO `operator` (`o_first_name`, `o_last_name`, `o_username`, `o_password`, `o_email`, `o_position`, `o_permit`) VALUES (:first_name, :last_name, :username, :password, :email, 0, 0)');
-		$this->db->bind(':first_name', $data['first_name'], $this->db->PARAM_STR);
-		$this->db->bind(':last_name', $data['last_name'], $this->db->PARAM_STR);
-		$this->db->bind(':username', $data['username'], $this->db->PARAM_STR);
-		$this->db->bind(':password', md5($data['password']), $this->db->PARAM_STR);
-		$this->db->bind(':email', $data['email'], $this->db->PARAM_STR);
+		$this->db->bind(':first_name', $_SESSION['tmp_first_name'], $this->db->PARAM_STR);
+		$this->db->bind(':last_name', $_SESSION['tmp_last_name'], $this->db->PARAM_STR);
+		$this->db->bind(':username', $_SESSION['tmp_username'], $this->db->PARAM_STR);
+		$this->db->bind(':password', md5($_SESSION['tmp_password']), $this->db->PARAM_STR);
+		$this->db->bind(':email', $_SESSION['tmp_email'], $this->db->PARAM_STR);
 
 		$this->db->execute();
 
 		return [
-			'toast' => [
-				'title' => 'Signup',
-				'icon' => 'user',
+			'success' => true,
+			'card-tag' => [
+				'type' => 'success',
 				'body' => 'Signup complete! Awaiting confirmation.'
 			]
 		];
