@@ -1,6 +1,6 @@
 <?php
 
-$filename = '../../../dropship-seller/data/' . explode('&', $_SERVER['QUERY_STRING'])[0];
+$filename = '..'.DIRECTORY_SEPARATOR.'..'.DIRECTORY_SEPARATOR.'..'.DIRECTORY_SEPARATOR.'dropship-seller'.DIRECTORY_SEPARATOR.'data'.DIRECTORY_SEPARATOR . explode('&', $_SERVER['QUERY_STRING'])[0];
 
 if (file_exists($filename)) {
 

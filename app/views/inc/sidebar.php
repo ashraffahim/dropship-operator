@@ -21,7 +21,7 @@
 	</div>
 </div>
 <?php
-@include DATADIR . DS . 'menu' . DS . 'menu.php';
+@include DATADIR . DS . 'menu' . DS . 'operator-menu.php';
 ?>
 <div class="container mt-3">
 	<div class="row text-theme">

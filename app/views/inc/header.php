@@ -66,7 +66,7 @@
           <div class="dropdown">
             <button type="button" class="btn btn-icon" data-toggle="dropdown"><i class="far fa-user fa-lg"></i></button>
             <div class="dropdown-menu dropdown-menu-right p-0">
-              <a class="dropdown-item" href="/User/profile" data-toggle="load-host" data-target="#content">
+              <a class="dropdown-item" href="/user/profile" data-toggle="load-host" data-target="#content">
                 <span class="btn btn-icon btn-xs mr-2"><i class="far fa-user fa-lg"></i></span><span>Profile</span>
               </a>
               <a class="dropdown-item" href="javascript:void(0)" onclick="changeThemeMode(this)">

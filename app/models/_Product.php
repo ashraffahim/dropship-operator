@@ -12,19 +12,122 @@ class _Product {
 		$this->db = new Database();
 	}
 
-	public function unitOption() {
-		$this->db->query('SELECT `id` AS `val`, `pu_title` AS `data` FROM `dop`.`product_unit` WHERE `pu_status` = 1');
-		return $this->db->result();
+	public function approve($id) {
+		$this->db->query('
+		SELECT 
+			* 
+		FROM 
+			`draft_new_product`
+		WHERE 
+			`id` = :id 
+			AND `dp_operatorstamp` = ' . $_SESSION[CLIENT . 'user_id']->id . ' 
+			AND `dp_status` = 1
+		');
+
+		$this->db->bind(':id', $id, $this->db->PARAM_INT);
+		$d = $this->db->single();
+		
+		$this->db->query('
+		INSERT INTO `product` (
+			`p_name`,
+			`p_description`,
+			`p_category`,
+			`p_price`,
+			`p_brand`,
+			`p_model`,
+			`p_custom_field`,
+			`p_status`,
+			`p_sellerstamp`,
+			`p_operatorstamp`,
+			`p_timestamp`,
+			`p_latimestamp`
+		) VALUES (
+			"' . $d->dp_name . '",
+			"' . $d->dp_description . '",
+			"' . $d->dp_category . '",
+			"' . $d->dp_price . '",
+			"' . $d->dp_brand . '",
+			"' . $d->dp_model . '",
+			"' . addslashes($d->dp_custom_field) . '",
+			"' . $d->dp_status . '",
+			"' . $d->dp_sellerstamp . '",
+			"' . $_SESSION[CLIENT . 'user_id']->id . '",
+			"' . time() . '",
+			"' . time() . '"
+		)
+		');
+
+		$this->db->execute();
+		$insid = $this->db->lastInsertId();
+
+		// Make approved product dir
+		mkdir(DATADIR . DS . 'product' . DS . $insid);
+
+		$files = glob(DATADIR . DS . 'draft-new-product' . DS . $insid . DS . '*');
+		foreach ($files as $f) {
+			copy($f, DATADIR . DS . 'product' . DS . $insid . DS . basename($f));
+		}
+
+		return [
+			'status' => 1
+		];
 	}
 
-	public function exist($name, $upc) {
-		$this->db->query('SELECT COUNT(`id`) AS `status`, `id` FROM `dop`.`view_product` WHERE `name` = :name OR `upc` = :upc');
-		$this->db->bind(':name', $name, $this->db->PARAM_STR);
-		$this->db->bind(':upc', $upc, $this->db->PARAM_INT);
-		$product = $this->db->single();
+	public function reject($id) {
+		$this->db->query('
+		SELECT 
+			* 
+		FROM 
+			`draft_new_product`
+		WHERE 
+			`id` = :id 
+			AND `dp_operatorstamp` = ' . $_SESSION[CLIENT . 'user_id']->id . ' 
+			AND `dp_status` = 1
+		');
+		$d = $this->db->single();
+		$this->db->query('
+		INSERT INTO `product` (
+			`p_name`,
+			`p_description`,
+			`p_category`,
+			`p_price`,
+			`p_brand`,
+			`p_model`,
+			`p_custom_field`,
+			`p_status`,
+			`p_sellerstamp`,
+			`p_operatorstamp`,
+			`p_timestamp`,
+			`p_latimestamp`
+		) VALUES (
+			"' . $d->dp_name . '",
+			"' . $d->dp_description . '",
+			"' . $d->dp_category . '",
+			"' . $d->dp_price . '",
+			"' . $d->dp_brand . '",
+			"' . $d->dp_model . '",
+			"' . $d->dp_custom_field . '",
+			"' . $d->dp_status . '",
+			"' . $d->dp_sellerstamp . '",
+			"' . $_SESSION[CLIENT . 'user_id']->id . '",
+			"' . time() . '",
+			"' . time() . '"
+		)
+		');
+
+		$this->db->execute();
+		$insid = $this->db->lastInsertId();
+
+		// Make approved product dir
+		mkdir(DATADIR . DS . 'product' . DS . $insid . DS . '*');
+
+		$files = glob(DATADIR . DS . 'draft-new-product' . DS . $insid . DS . '*');
+		foreach ($files as $f) {
+			copy($f, DATADIR . DS . 'product' . DS . $insid . DS . basename($f));
+		}
+
 		return [
-			'status' => !$product->status,
-			'id' => $product->id
+			'status' => 1
 		];
 	}
 
@@ -35,7 +138,7 @@ class _Product {
 			return [
 				'cardTag' => [
 					'type' => 'danger',
-					'body' => 'Product already exists <a href="/Product/index/'.$validate['id'].'" data-toggle="load-host" data-target="#content">See Here</a>'
+					'body' => 'Product already exists <a href="/product/index/'.$validate['id'].'" data-toggle="load-host" data-target="#content">See Here</a>'
 				],
 				'reset' => true
 			];
@@ -80,7 +183,7 @@ class _Product {
 				$ext = pathinfo($file['name'])['extension'];
 
 				$originalImage = $file['tmp_name'];
-				$outputImage = DATA . 'product/' . $id . '.jpg';
+				$outputImage = DATADIR . 'product/' . $id . '.jpg';
 				$quality = 75;
 
 				$this->db->convertImageToJPG($originalImage, $outputImage, $ext, $quality);
@@ -105,7 +208,7 @@ class _Product {
 		];
 	}
 
-	public function pendingApprovalList($ord_index, $page) {
+	public function list($ord_index, $page, $crit_index) {
 		$order = [
 			1 => '`id`',
 			2 => '`id` DESC',
@@ -114,103 +217,100 @@ class _Product {
 			5 => '`dp_price`',
 			6 => '`dp_price` DESC'
 		];
-		$this->db->query('SELECT `dp`.*, `s`.`id` `sid`, CONCAT(`s`.`s_first_name`, " ", `s`.`s_last_name`) `seller` FROM `draft_product` `dp` JOIN `seller` `s` ON (`dp`.`dp_sellerstamp` = `s`.`id`) ORDER BY ' . $order[$ord_index] . ' LIMIT ' . ($page * ROW_LIMIT) . ', ' . ROW_LIMIT);
+		$crit = [
+			1 => 'dp_status = 1'
+		];
+		$this->db->query('
+			SELECT 
+				`dp`.*, `s`.`id` `sid`, CONCAT(`s`.`s_first_name`, " ", `s`.`s_last_name`) `seller` 
+			FROM 
+				`draft_new_product` `dp` JOIN `seller` `s` ON (`dp`.`dp_sellerstamp` = `s`.`id`) 
+			WHERE 
+				' . $crit[$crit_index] . ' AND (dp_operatorstamp = ' . $_SESSION[CLIENT . 'user_id']->id . ' OR dp_operatorstamp IS NULL) 
+			ORDER BY 
+				' . $order[$ord_index] . ' 
+			LIMIT 
+				' . ($page * ROW_LIMIT) . ', ' . ROW_LIMIT
+			);
 		return $this->db->result();
 	}
 
-	public function spec($id, $p = false) {
-		if ($id == 'next') {
+	public function spec($id) {
 
-			$this->db->query('SELECT `dp`.*, `s`.`id` `sid`, CONCAT(`s`.`s_first_name`, " ", `s`.`s_last_name`) `seller` FROM `draft_product` `dp` JOIN `seller` `s` ON (`dp`.`dp_sellerstamp` = `s`.`id`) WHERE `dp`.`dp_operatorstamp` IS NULL LIMIT 1');
-			$ps = $this->db->single();
-			
-			if ($ps) {
-				$this->db->query('UPDATE `draft_product` SET `dp_operatorstamp` = ' . $_SESSION[CLIENT . 'user_id']->id . ' WHERE `id` = ' . $ps->id);
-				$this->db->execute();
-				return $ps;
-			} else {
-				return [
-					'card-tag' => [
-						'type' => 'info',
-						'body' => '<b>No more drafts</b>'
-					]
-				];
-			}
+		$data = [];
+		$status = [];
 
-		} elseif (preg_match('/^[0-9]+$/', $id)) {
+		// Get unassigned draft
+		$this->db->query('
+			SELECT 
+				* 
+			FROM 
+				`draft_new_product` 
+			WHERE 
+				`id` = :id 
+				AND `dp_status` = 1
+				AND (`dp_operatorstamp` IS NULL OR `dp_operatorstamp` = ' . $_SESSION[CLIENT . 'user_id']->id . ')
+		');
+		$this->db->bind(':id', $id, $this->db->PARAM_INT);
+		$ret = $this->db->single();
 
-			$this->db->query('SELECT `dp`.*, `s`.`id` `sid`, CONCAT(`s`.`s_first_name`, " ", `s`.`s_last_name`) `seller` FROM `draft_product` `dp` JOIN `seller` `s` ON (`dp`.`dp_sellerstamp` = `s`.`id`) WHERE `dp`.`id` = :id AND (`dp`.`dp_operatorstamp` IS NULL OR `dp`.`dp_operatorstamp` = ' . $_SESSION[CLIENT . 'user_id']->id . ')');
-			$this->db->bind(':id', $id, $this->db->PARAM_INT);
-			$ps = $this->db->single();
-			
-			if ($ps) {
-				$this->db->query('UPDATE `draft_product` SET `dp_operatorstamp` = ' . $_SESSION[CLIENT . 'user_id']->id . ' WHERE `id` = ' . $ps->id);
-				$this->db->execute();
-				return $ps;
-			} else {
-				return [
-					'card-tag' => [
-						'type' => 'danger',
-						'body' => '<b>Invalid ID</b>'
-					]
-				];
-			}
-
-		} else {
-			
-			$this->db->query('SELECT `dp`.*, `s`.`id` `sid`, CONCAT(`s`.`s_first_name`, " ", `s`.`s_last_name`) `seller` FROM `draft_product` `dp` JOIN `seller` `s` ON (`dp`.`dp_sellerstamp` = `s`.`id`) WHERE `dp`.`id` < :id AND `dp`.`dp_operatorstamp` = ' . $_SESSION[CLIENT . 'user_id']->id . ' LIMIT 1');
-			$this->db->bind(':id', $p, $this->db->PARAM_INT);
-			$ps = $this->db->single();
-			
-			if ($ps) {
-				return $ps;
-			} else {
-				return [
-					'card-tag' => [
-						'type' => 'danger',
-						'body' => '<b>No previous draft</b>'
-					]
-				];
-			}
-
+		if (!isset($ret->id)) {
+			$status = [
+				'status' => 0,
+				'alert' => [
+					'type' => 'warning',
+					'title' => 'Invalid Id!',
+					'body' => 'Refresh this page after a while'
+				]
+			];
 		}
+
+		// Assign draft to operator
+		$this->db->query('
+		UPDATE 
+			`draft_new_product`
+		SET 
+			`dp_operatorstamp` = ' . $_SESSION[CLIENT . 'user_id']->id . '
+		WHERE 
+			`id` = ' . $ret->id
+		);
+		$this->db->execute();
+
+		return ['data' => $ret, 'status' => $status];
 	}
 
-	public function approve($id) {
-		$this->db->query('SELECT * FROM `draft_product` WHERE `id` = :id AND `dp_status` = 1 AND `dp_operatorstamp` = ' . $_SESSION[CLIENT . 'user_id']->id);
-		$this->db->bind(':id', $id);
-		$ap = $this->db->single();
+	public function nextSpecId() {
 
-		if (!$ap) {
-			return;
-		}
+		$data = [];
+		$status = [];
+
+		$this->db->query('
+		SELECT 
+			`id`
+		FROM 
+			`draft_new_product`
+		WHERE 
+			`dp_operatorstamp` IS NULL
+		LIMIT 
+			1
+		');
+
+		$ret = $this->db->single();
 		
-		$this->db->query('INSERT INTO `product` 
-		(
-			`p_name`, `p_handle`, `p_category`, `p_brand`, `p_model`, `p_description`, `p_price`, `p_category_spec`, `p_custom_field`, `p_variation`, `p_status`, `p_o_status`, `p_sellerstamp`, `p_operatorstamp`, `p_timestamp`, `p_latimestamp`
-		)
-		 VALUES 
-		(
-			"'.$ap->dp_name.'", "'.$ap->dp_handle.'", "'.$ap->dp_category.'", "'.$ap->dp_brand.'", "'.$ap->dp_model.'", "'.$ap->dp_description.'", "'.$ap->dp_price.'", "'.addslashes($ap->dp_category_spec).'", "'.addslashes($ap->dp_custom_field).'", "'.$ap->dp_variation.'", 1, 1, '.$ap->dp_sellerstamp.', '.$ap->dp_operatorstamp.', '.$ap->dp_timestamp.', '.$ap->dp_latimestamp.'
-		)');
-		
-		$this->db->execute();
-		$id = $this->db->lastInsertId();
-
-		mkdir(DATADIR.DS.'product'.DS.$id);
-
-		$imgs = glob(DATADIR.DS.'draft'.DS.$ap->id.DS.'*');
-		foreach ($imgs as $img) {
-			file_put_contents(DATADIR.DS.'product'.DS.$id.DS.basename($img), file_get_contents($img));
-			unlink($img);
+		if (!isset($ret->id)) {
+			$status = [
+				'status' => 0,
+				'alert' => [
+					'type' => 'secondary',
+					'title' => 'No more drafts!',
+					'body' => 'Refresh this page after a while'
+				]
+			];
 		}
 
-		// remove folder
-		rmdir(DATADIR.DS.'draft'.DS.$ap->id);
-
-		$this->db->query('DELETE FROM `draft_product` WHERE `id` = ' . $ap->id);
-		$this->db->execute();
+		return ['data' => $ret, 'status' => $status];
 	}
+
 }
 
 ?>

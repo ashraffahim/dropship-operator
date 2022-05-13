@@ -13,7 +13,7 @@ const SELECTOR = {
 	reloadFrameURL: '[data-toggle="reload"]',
 	silentSubmitForm: 'form.silent',
 	confirmAction: '[data-toggle="confirm"]',
-	shortcutPostAction: '[data-toggle="shortcut-post-action"]',
+	hotPostAction: '[data-toggle="hot-post-action"]',
 	toggleSlide: '[data-toggle="slide"]',
 	maximizeTool: '[data-toggle="maximize"]',
 	minimizeTool: '.minimized,[data-toggle="minimize"]',
@@ -59,7 +59,7 @@ $(document).ready(function() {
 
 	silentSubmitForm(SELECTOR.silentSubmitForm);
 	confirmAction(SELECTOR.confirmAction);
-	shortcutPostAction(SELECTOR.shortcutPostAction);
+	hotPostAction(SELECTOR.hotPostAction);
 	maximize(SELECTOR.maximizeTool);
 	minimize(SELECTOR.minimizeTool);
 	dock(SELECTOR.dockTool, SELECTOR.dockContainer);
@@ -396,16 +396,17 @@ function confirmAction(elem) {
 		url = $(this).data('url');
 		id = $(this).data('id');
 		callback = $(this).attr('callback');
-		makeModal(title, icon, body, 'data-toggle="shortcut-post-action" data-url="'+url+'" data-data="id='+id+'" callback="'+callback+'"');
+		makeModal(title, icon, body, 'data-toggle="hot-post-action" data-url="'+url+'" data-data="id='+id+'" callback="'+callback+'"');
 	});
 }
 
-function shortcutPostAction(elem) {
+function hotPostAction(elem) {
 	let callback;
 	$(document).on('click', elem, function() {
 		callback = $(this).attr('callback');
-		$.post($(this).data('url'), $(this).data('data'), function() {
+		$.post($(this).data('url'), $(this).data('data'), function(da) {
 			eval(callback);
+			console.log(da);
 		});
 	});
 }

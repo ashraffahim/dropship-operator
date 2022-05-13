@@ -951,6 +951,10 @@ hr, .dropdown-divider {
 	filter: invert(1);
 }
 
+.approve-product img {
+	width: 100%;
+}
+
 @media (min-width: 992px) {
 
 	.login-main {

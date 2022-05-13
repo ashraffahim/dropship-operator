@@ -24,48 +24,58 @@ class Product extends Controller {
 		];
 	}
 
-	public function approve($id = false, $p = false) {
-		if ($_SERVER['REQUEST_METHOD'] == 'POST') {
-			$this->product->approve($_POST['id']);
-			return;
-		}
-		if ($this->isPageChange()) {
-			$this->sanitizeInputGet();
-			$data = $this->product->pendingApprovalList($this->getTableRowOrder(), $this->getLoadPage());
-			$this->view('product/row', ['data' => $data]);
-		} else {
-			if ($id) {
-				$data = $this->product->spec($id, $p);
-				$this->view('product/spec', [
-					'data' => $data
-				]);
-			} else {
-				$data = $this->product->pendingApprovalList($this->getTableRowOrder(), $this->getLoadPage());
-				$this->view('product/index', [
-					'id' => $id,
-					'ord' => $this->getTableRowOrder(),
-					'page' => $this->getLoadPage(),
-					'data' => $data
-				]);
-			}
-		}
-	}
-
-	public function add() {
-
-		if ($this->RMisPost()) {
-			$this->sanitizeInputPost();
-			$_POST['added_by'] = $_SESSION[CLIENT . 'user_id']->id;
-			$data = $this->product->add($_POST, $_FILES['image']);
-			$this->status($data);
-		}
-
-		$unitOption = $this->product->unitOption();
-		$this->view('product/add', [
-			'unit_option' => $unitOption,
-			'product_type' => $this->productType
+	public function row($o = 1, $c = 1) {
+		$p = $this->get('page');
+		$data = $this->product->list($o, $p, $c);
+		$this->view('product/row', [
+			'data' => $data,
+			'page' => $p,
+			'o' => $o,
+			'c' => $c
 		]);
 	}
+
+	public function index($o = 1, $c = 1) {
+		$p = $this->get('page');
+		$data = $this->product->list($o, $p, $c);
+		$this->view('product/index', [
+			'data' => $data,
+			'page' => $p,
+			'o' => $o,
+			'c' => $c
+		]);
+	}
+
+	public function approve() {
+		if ($this->RMisPost()) {
+			$this->sanitizeInputPost();
+			$status = $this->product->approve($_POST['id']);
+			$this->status($status);
+		}
+	}
+
+	public function reject() {
+		if ($this->RMisPost()) {
+			$this->sanitizeInputPost();
+			$status = $this->product->reject($_POST['id']);
+			$this->status($status);
+		}
+	}
+
+	public function spec($id) {
+		$data = [];
+		if ($id == 'next') {
+			$data = $this->product->nextSpecId();
+			if (isset($data['data']->id)) {
+				$id = $data['data']->id;
+				$data = $this->product->spec($id);
+			}
+		} else {
+			$data = $this->product->spec($id);
+		}
+		$this->view('product/spec', $data);
+	}
+
 }
 
 ?>

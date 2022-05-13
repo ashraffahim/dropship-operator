@@ -1,151 +1,151 @@
 <?php
-echo pageTitle('product/index');
+echo pageTitle('product/approve');
 
-// if drafts exist
-if (isset($data['data']->id)) {
+if (isset($data['status']['status'])) {
+	?>
+	<div class="row">
+		<div class="col-12">
+			<div class="alert alert-<?php echo $data['status']['alert']['type']; ?>">
+				<h6 class="text-theme-darker">
+					<?php echo $data['status']['alert']['title']; ?>
+				</h6>
+				<p>
+					<?php echo $data['status']['alert']['body']; ?>
+				</p>
+			</div>
+		</div>
+	</div>
+	<?php
+	return;
+}
+
 ?>
-<div class="row" data-plugin="pa">
-	<div class="col">
-		<div class="card shadow">
+
+<div class="row approve-product">
+
+	<!-- Product approval actions -->
+	<div class="col-12">
+		<div class="card shadow-sm">
 			<div class="card-body">
 				<div class="row">
-					<div class="col"></div>
 					<div class="col">
-						<div class="row">
-							<div class="col"><button class="btn btn-link text-danger btn-block disapprove-draft">Disapprove</button></div>
-							<div class="col"><button class="btn btn-theme btn-block approve-draft" data-approve="<?php echo $data['data']->id; ?>">Approve</button></div>
-						</div>
+						<button type="button" class="btn btn-danger rounded-pill btn-block" data-toggle="hot-post-action" data-url="/product/reject" data-data="id=<?php echo $data['data']->id; ?>" callback="redir('/product/spec/next')">
+							<div class="d-flex justify-content-between">
+								<div><i class="fa fa-times"></i></div>
+								<b>Reject</b>
+								<div></div>
+							</div>
+						</button>
 					</div>
 					<div class="col">
-						<div class="row">
-							<div class="col"><a href="/product/approve/prev/<?php echo $data['data']->id; ?>" data-toggle="load-host" data-target="#content" class="btn btn-translucent btn-block d-flex justify-content-between align-items-center rounded-pill"><i class="fa fa-angle-left"></i><span>Previous</span><div></div></a></div>
-							<div class="col"><a href="/product/approve/next" data-toggle="load-host" data-target="#content" class="btn btn-translucent btn-block d-flex justify-content-between align-items-center rounded-pill"><div></div><span>Next</span><i class="fa fa-angle-right"></i></a></div>
-						</div>
+						<a class="btn btn-translucent rounded-pill btn-block" data-toggle="load-host" href="/product/spec/next" data-target="#content">
+							<div class="d-flex justify-content-between">
+								<div></div>
+								<b>Skip</b>
+								<div></div>
+							</div>
+						</a>
+					</div>
+					<div class="col">
+						<button type="button" class="btn btn-theme rounded-pill btn-block" data-toggle="hot-post-action" data-url="/product/approve" data-data="id=<?php echo $data['data']->id; ?>" callback="redir('/product/spec/next')">
+							<div class="d-flex justify-content-between">
+								<div></div>
+								<b>Approve</b>
+								<div><i class="fa fa-check"></i></div>
+							</div>
+						</button>
 					</div>
 				</div>
 			</div>
 		</div>
 	</div>
-</div>
-<div class="row justify-content-center mb-3">
-	<div class="col-lg-6 col-md-8 col-sm-10">
-		<table class="table table-striped table-light">
-			<tr>
-				<th>Name</th>
-				<td><?php echo $data['data']->dp_name; ?></td>
 
-				<th>Handle</th>
-				<td><?php echo $data['data']->dp_handle; ?></td>
-			</tr>
-			<tr>
-				<th>Category</th>
-				<td><?php echo $data['data']->dp_category; ?></td>
-
-				<th>Price</th>
-				<td><?php echo $data['data']->dp_price; ?></td>
-			</tr>
-			<tr>
-				<th>Brand</th>
-				<td><?php echo $data['data']->dp_brand; ?></td>
-
-				<th>Model</th>
-				<td><?php echo $data['data']->dp_model; ?></td>
-			</tr>
-			<tr>
-				<th>Seller</th>
-				<td><?php echo $data['data']->seller . ' #' . $data['data']->sid; ?></td>
-
-				<th>Activity</th>
-				<td>
-					Created: <?php echo date('d F, Y h:i:s', $data['data']->dp_timestamp); ?><br>
-					Last activity: <?php echo date('d F, Y h:i:s', $data['data']->dp_latimestamp); ?>
-				</td>
-			</tr>
-			<tr>
-				<th>Description</th>
-				<td colspan="3"><?php echo $data['data']->dp_description; ?></td>
-			</tr>
-		</table>
-	</div>
-</div>
-<div class="row justify-content-center mb-3">
-	<div class="col-lg-6 col-md-8 col-sm-10">
-		<span class="lead">Category Specification</span>
-		<table class="table table-striped table-light">
-			<?php
-			$css = json_decode($data['data']->dp_category_spec);
-			foreach ($css as $c => $s) {
-				echo '<tr>
-				<th>' . $c . '</th>
-				<td>' . $s . '</td>
-				</tr>';
-			}
-			?>
-		</table>
-	</div>
-</div>
-<div class="row justify-content-center mb-3">
-	<div class="col-lg-6 col-md-8 col-sm-10">
-		<span class="lead">Custom Field</span>
-		<table class="table table-striped table-light">
-			<?php
-			$cfs = json_decode($data['data']->dp_custom_field);
-			foreach ($cfs as $cf => $v) {
-				echo '<tr>
-				<th>' . $cf . '</th>
-				<td>' . $v . '</td>
-				</tr>';
-			}
-			?>
-		</table>
-	</div>
-</div>
-<div class="row justify-content-center">
-	<div class="col-lg-6 col-md-8 col-sm-10">
-		<?php
-		
-		$imgs = str_replace(DATADIR.DS.'draft'.DS.$data['data']->id.DS, DATA.'/draft/'.$data['data']->id.'/', glob(DATADIR.DS.'draft'.DS.$data['data']->id.DS.'*'));
-		foreach ($imgs as $img) {
-			echo '<div class="row mb-3"><div class="col-12"><img src="' . $img . '?qlt=50" class="sci"><span class="float-right"><label class="checkbox"><input type="checkbox" class="spc"><span>Clear</span></label></span></div></div>';
-		}
-
-		?>
-	</div>
-</div>
-<style>
-	.sci {
-		max-height: 300px;
-		max-width: 300px;
-	}
-</style>
-<?php } else { ?>
-
-<!-- If draft doest not exist / alert -->
-
-<div class="row">
-	<div class="col">
-		<div class="card shadow">
-			<div class="card-body">
-				<div class="row">
-					<div class="col"></div>
-					<div class="col"></div>
-					<div class="col">
-						<div class="row">
-							<div class="col"><a href="/product/approve/next" data-toggle="load-host" data-target="#content" class="btn btn-light btn-block d-flex justify-content-between align-items-center rounded-pill"><div></div><span>Check for updates</span><i class="fa fa-angle-right"></i></a></div>
-						</div>
+	<!-- Left column -->
+	<div class="col-md-6">
+		<div class="row">
+			<div class="col-12">
+				<div class="card shadow-sm">
+					<div class="card-body">
+						<table class="table table-light table-striped table-lg">
+							<tr>
+								<th>Id</th>
+								<td><?php echo $data['data']->id; ?></td>
+							</tr>
+							<tr>
+								<th>Name</th>
+								<td><?php echo $data['data']->dp_name; ?></td>
+							</tr>
+							<tr>
+								<th>Category</th>
+								<td><?php echo $data['data']->dp_category; ?></td>
+							</tr>
+							<tr>
+								<th>Description</th>
+								<td><?php echo $data['data']->dp_description; ?></td>
+							</tr>
+							<tr>
+								<th>Price</th>
+								<td><?php echo $data['data']->dp_price; ?></td>
+							</tr>
+							<tr>
+								<th>Brand</th>
+								<td><?php echo $data['data']->dp_brand; ?></td>
+							</tr>
+							<tr>
+								<th>Model</th>
+								<td><?php echo $data['data']->dp_model; ?></td>
+							</tr>
+							<tr>
+								<th>Seller Id</th>
+								<td><?php echo $data['data']->dp_sellerstamp; ?></td>
+							</tr>
+							<tr>
+								<th>Created</th>
+								<td><?php echo $data['data']->dp_timestamp; ?></td>
+							</tr>
+							<tr>
+								<th>Last Update</th>
+								<td><?php echo $data['data']->dp_latimestamp; ?></td>
+							</tr>
+						</table>
+					</div>
+				</div>
+			</div>
+			<div class="col-12">
+				<div class="card shadow-sm">
+					<div class="card-body">
+						<h3>Custom Specs</h3>
+						<table class="table table-light table-striped table-lg">
+							<?php
+							foreach (json_decode($data['data']->dp_custom_field) as $f => $v) {
+							?>
+							<tr>
+								<th><?php echo $f; ?></th>
+								<td><?php echo $v; ?></td>
+							</tr>
+							<?php
+							}
+							?>
+						</table>
 					</div>
 				</div>
 			</div>
 		</div>
 	</div>
-</div>
 
-<div class="row justify-content-center">
-	<div class="col-lg-4 col-md-6 col-sm-8">
-		<div class="card-tag card-tag-<?php echo $data['data']['card-tag']['type']; ?>">
-			<?php echo $data['data']['card-tag']['body']; ?>
+	<!-- Right column -->
+	<div class="col-md-6">
+		<div class="card shadow-sm">
+			<div class="card-body">
+				<?php
+				$files = glob(DATADIR . DS . 'draft-new-product' . DS . $data['data']->id . DS . '*');
+				foreach ($files as $f) {
+				?>
+				<img src="<?php echo DATA . DS . 'draft-new-product' . DS . $data['data']->id . DS . basename($f); ?>">
+				<?php
+				}
+				?>
+			</div>
 		</div>
 	</div>
 </div>
-
-<?php } ?>

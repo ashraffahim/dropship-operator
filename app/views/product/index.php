@@ -1,6 +1,6 @@
 <?php
 echo pageTitle('product/index', '<span class="float-right">'.privilegeButton('product/add').'</span>');
-$url = '/product/approve'.($data['id'] ? '/' . $data['id'] : '').'?ord='.$data['ord'];
+$url = '/product/row/' . $data['o'] . '/' . $data['c'] . '?page=' . $data['page'];
 ?>
 <div class="row">
 	<div class="col">
@@ -48,10 +48,9 @@ $url = '/product/approve'.($data['id'] ? '/' . $data['id'] : '').'?ord='.$data['
 				<thead>
 					<tr>
 						<th>#</th>
-						<th></th>
 						<th>Name</th>
-						<th>Handle</th>
 						<th>Category</th>
+						<th>Description</th>
 						<th>Price</th>
 						<th>Seller</th>
 						<th>Last Activity</th>
@@ -62,18 +61,15 @@ $url = '/product/approve'.($data['id'] ? '/' . $data['id'] : '').'?ord='.$data['
 				<?php
 
 				foreach ($data['data'] as $i => $p) :
-					
-					$img = glob(DATADIR . DS . 'draft' . DS . $p->id . DS . '*')[0];
 
 					?>
 					<tr>
 						<td><?php echo $p->id; ?></td>
-						<td><img src="<?php echo DATA . '/draft/' . $p->id . '/' . basename($img) . '?qlt=0'; ?>" height="24" class="product-image rounded" data-id="<?php echo $p->id; ?>"></td>
-						<td class="name"><a href="/product/approve/<?php echo $p->id; ?>"><?php echo $p->dp_name; ?></a></td>
-						<td><?php echo $p->dp_handle; ?></td>
+						<td class="name"><a href="/product/spec/<?php echo $p->id; ?>"><?php echo $p->dp_name; ?></a></td>
 						<td class="name"><?php echo $p->dp_category; ?></td>
+						<td><?php echo $p->dp_description; ?></td>
 						<td><?php echo $p->dp_price; ?></td>
-						<td><?php echo $p->seller; ?></td>
+						<td><?php echo $p->dp_sellerstamp; ?></td>
 						<td><?php echo date('d F, Y h:i:s', $p->dp_latimestamp); ?></td>
 						<td></td>
 					</tr>
@@ -94,7 +90,9 @@ $url = '/product/approve'.($data['id'] ? '/' . $data['id'] : '').'?ord='.$data['
 	</div>
 </div>
 <script type="text/javascript">
-	$('.load-more').loadMoreTableRow('.product-rows');
+	$('.load-more').loadMoreTableRow('.product-rows', function(d) {
+		return d;
+	});
 	$('.product-rows').on('click', '.product-image', function() {
 		makeModal('', '', '<img src="' + $(this).attr('src').replace('qlt=0', 'qlt=75') + '" class="w-100 rounded">');
 	});

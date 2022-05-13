@@ -17,7 +17,7 @@ define('APP_VERSION', '1.0.0');
 define('DS', DIRECTORY_SEPARATOR);
 define('DATADIR', '.'.DS.'..'.DS.'..'.DS.'dropship-seller'.DS.'data');
 define('DATA', DS . 'data');
-define('LOGO', 'http://dropship/assets/img/agit-logo-c.png');
+define('LOGO', 'https://i.imgur.com/kAz9P7V.png');
 define('ROW_LIMIT', 50);
 
 // Server
