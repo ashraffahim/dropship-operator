@@ -68,6 +68,29 @@ class _Product {
 			copy($f, DATADIR . DS . 'product' . DS . $insid . DS . basename($f));
 		}
 
+		// ____
+		// Remove draft
+		// ____
+
+		$this->db->query('
+		DELETE FROM 
+			`draft_new_product`
+		WHERE 
+			`id` = :id
+		');
+
+		$this->db->bind(':id', $id, $this->db->PARAM_INT);
+		$this->db->execute();
+		
+		$files = glob(DATADIR . DS . 'draft-new-product' . DS . $id . DS . '*');
+		foreach ($files as $f) {
+			unlink($f);
+		}
+
+		rmdir(DATADIR . DS . 'draft-new-product' . DS . $id);
+
+		// End remove draft
+
 		return [
 			'status' => 1
 		];
@@ -75,57 +98,20 @@ class _Product {
 
 	public function reject($id) {
 		$this->db->query('
-		SELECT 
-			* 
-		FROM 
-			`draft_new_product`
+		UPDATE 
+			`draft_new_product` 
+		SET 
+			`dp_o_status` = 0
 		WHERE 
 			`id` = :id 
 			AND `dp_operatorstamp` = ' . $_SESSION[CLIENT . 'user_id']->id . ' 
 			AND `dp_status` = 1
 		');
-		$d = $this->db->single();
-		$this->db->query('
-		INSERT INTO `product` (
-			`p_name`,
-			`p_description`,
-			`p_category`,
-			`p_price`,
-			`p_brand`,
-			`p_model`,
-			`p_custom_field`,
-			`p_status`,
-			`p_sellerstamp`,
-			`p_operatorstamp`,
-			`p_timestamp`,
-			`p_latimestamp`
-		) VALUES (
-			"' . $d->dp_name . '",
-			"' . $d->dp_description . '",
-			"' . $d->dp_category . '",
-			"' . $d->dp_price . '",
-			"' . $d->dp_brand . '",
-			"' . $d->dp_model . '",
-			"' . $d->dp_custom_field . '",
-			"' . $d->dp_status . '",
-			"' . $d->dp_sellerstamp . '",
-			"' . $_SESSION[CLIENT . 'user_id']->id . '",
-			"' . time() . '",
-			"' . time() . '"
-		)
-		');
+
+		$this->db->bind(':id', $id, $this->db->PARAM_INT);
 
 		$this->db->execute();
-		$insid = $this->db->lastInsertId();
-
-		// Make approved product dir
-		mkdir(DATADIR . DS . 'product' . DS . $insid . DS . '*');
-
-		$files = glob(DATADIR . DS . 'draft-new-product' . DS . $insid . DS . '*');
-		foreach ($files as $f) {
-			copy($f, DATADIR . DS . 'product' . DS . $insid . DS . basename($f));
-		}
-
+		
 		return [
 			'status' => 1
 		];
