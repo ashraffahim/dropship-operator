@@ -29,6 +29,7 @@ class _Product {
 		
 		$this->db->query('
 		INSERT INTO `product` (
+			`p_image`,
 			`p_name`,
 			`p_description`,
 			`p_category`,
@@ -37,11 +38,13 @@ class _Product {
 			`p_model`,
 			`p_custom_field`,
 			`p_status`,
+			`p_o_status`,
 			`p_sellerstamp`,
 			`p_operatorstamp`,
 			`p_timestamp`,
 			`p_latimestamp`
 		) VALUES (
+			"' . $d->dp_image . '",
 			"' . $d->dp_name . '",
 			"' . $d->dp_description . '",
 			"' . $d->dp_category . '",
@@ -50,6 +53,7 @@ class _Product {
 			"' . $d->dp_model . '",
 			"' . addslashes($d->dp_custom_field) . '",
 			"' . $d->dp_status . '",
+			1,
 			"' . $d->dp_sellerstamp . '",
 			"' . $_SESSION[CLIENT . 'user_id']->id . '",
 			"' . time() . '",
@@ -204,7 +208,7 @@ class _Product {
 			6 => '`dp_price` DESC'
 		];
 		$crit = [
-			1 => 'dp_status = 1'
+			1 => 'dp_status = 1 AND'
 		];
 		$this->db->query('
 			SELECT 
@@ -212,7 +216,7 @@ class _Product {
 			FROM 
 				`draft_new_product` `dp` JOIN `seller` `s` ON (`dp`.`dp_sellerstamp` = `s`.`id`) 
 			WHERE 
-				' . $crit[$crit_index] . ' AND (dp_operatorstamp = ' . $_SESSION[CLIENT . 'user_id']->id . ' OR dp_operatorstamp IS NULL) 
+				' . $crit[$crit_index] . ' (dp_operatorstamp = ' . $_SESSION[CLIENT . 'user_id']->id . ' OR dp_operatorstamp IS NULL) 
 			ORDER BY 
 				' . $order[$ord_index] . ' 
 			LIMIT 
@@ -234,7 +238,7 @@ class _Product {
 				`draft_new_product` 
 			WHERE 
 				`id` = :id 
-				AND `dp_status` = 1
+				AND `dp_status` = 1 
 				AND (`dp_operatorstamp` IS NULL OR `dp_operatorstamp` = ' . $_SESSION[CLIENT . 'user_id']->id . ')
 		');
 		$this->db->bind(':id', $id, $this->db->PARAM_INT);

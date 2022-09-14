@@ -139,7 +139,7 @@ class Configuration extends Controller {
 
 		}
 
-		file_put_contents(DATADIR . DS . 'menu' . DS . 'menu.php', $pile);
+		file_put_contents(DATADIR . DS . 'menu' . DS . 'operator-menu.php', $pile);
 	}
 
 }

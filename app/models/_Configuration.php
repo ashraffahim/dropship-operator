@@ -13,7 +13,7 @@ class _Configuration {
 	}
 
 	public function navigationView($id = 0, $hidden = false) {
-		$this->db->query('SELECT `*` FROM `sys_nav` WHERE ' . ($hidden ? '`is` < 10 AND' : '') . ($id == 0 ? ' `root` IS NULL' : ' `root`="'.$id.'"') . ' ORDER BY `position` DESC');
+		$this->db->query('SELECT * FROM `sys_nav` WHERE ' . ($hidden ? '`is` < 10 AND' : '') . ($id == 0 ? ' `root` IS NULL' : ' `root`="'.$id.'"') . ' ORDER BY `position` DESC');
 
 		return $this->db->result();
 	}

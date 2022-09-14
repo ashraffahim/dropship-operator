@@ -257,7 +257,7 @@ jQuery.fn.extend({
 		}
 	},
 	
-	loadMoreTableRow: function(table) {
+	loadMoreTableRow: function(table, callback) {
 		let loader = this, page = 2, end = false, loaderTitle = $(loader).text(), rowCount = 0;
 		$(loader).click(function() {
 
@@ -270,28 +270,25 @@ jQuery.fn.extend({
 				page = 1;
 				end = false;
 			}
-
+			
 			if (!end && !$(table + ' .load-more-table-row-end-of-result').length) {
-
+				
 				$(loader).html('<div class="spinner-border" role="status"><span class="sr-only">Loading...</span></div>');
 				$(loader).prop('disabled', true);
-				$(table).data('url', url + '&page=' + page);
-				$(table).loadFrameURL({
-					type: 'append',
-					done: function(obj, row) {
-						$(loader).html(loaderTitle);
-						$(loader).prop('disabled', false);
-						if (row == '') {
-							if(!end) {
-								$(table).append('<tr class="load-more-table-row-end-of-result"><td class="text-center lead text-muted" colspan="' + rowCount + '">End of result</td></tr>');
-								$(loader).hide();
-							}
-							end = true;
+				$.get(url + '&page=' + page, function(data) {
+					data = typeof callback == 'function' ? callback(data) : data;
+					$(table).append(data);
+					$(loader).html(loaderTitle);
+					$(loader).prop('disabled', false);
+					if (data == '') {
+						if(!end) {
+							$(table).append('<tr class="load-more-table-row-end-of-result"><td class="text-center lead text-muted" colspan="' + rowCount + '">End of result</td></tr>');
+							$(loader).hide();
 						}
-						page++;
+						end = true;
 					}
-				});
-			
+					page++;
+				});			
 			}
 		});
 	}

@@ -58,8 +58,8 @@ class Controller {
 		endif;
 	}
 
-	public function get($index) {
-		return isset($_GET[$index]) ? $_GET[$index] : false;
+	public function get($index, $def) {
+		return isset($_GET[$index]) ? $_GET[$index] : $def;
 	}
 
 	public function isPageChange() {

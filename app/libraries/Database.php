@@ -176,13 +176,15 @@ class Database {
 	}
 
 	public function convertImageToJPG($originalImage, $outputImage, $ext, $quality) {
-		if ($ext != 'jpg') {
+		if ($ext != 'jpg' || $ext != 'jpeg') {
 			if (preg_match('/png/i',$ext)) :
 				$imageTmp=imagecreatefrompng($originalImage);
 			elseif (preg_match('/gif/i',$ext)) :
 				$imageTmp=imagecreatefromgif($originalImage);
 			elseif (preg_match('/bmp/i',$ext)) :
 				$imageTmp=imagecreatefrombmp($originalImage);
+			elseif (preg_match('/webp/i',$ext)) :
+				$imageTmp=imagecreatefromwebp($originalImage);
 			else :
 				return 0;
 			endif;
@@ -206,7 +208,7 @@ class Database {
 		  <div style="max-width: 500px;width: 100%;display: inline-block">
 		    <div style="background-color: #fafafa;border-radius: .25rem;border: 2px solid #ddd;padding: 2rem 0">
 		      <div style="display: flex;align-items: center;justify-content: start">
-		        <img src="$logo" style="height: 34px;width: 64px;border-radius: .25rem;margin-left: 2rem;">
+		        <img src="$logo" style="height: 64px;width: 64px;border-radius: .25rem;margin-left: 2rem;">
 		        <span style="margin-left: 2rem;font-size: 2rem;font-weight: 900;color: #6e4e9e"></span>
 		      </div>
 		      <div style="margin: 2rem 0;border: .4px solid #ccc"></div>
@@ -239,9 +241,9 @@ EOF;
 			$mail->Password = $from['password'];
 			$mail->setFrom($from['username'], $from['name']);
 		} else {
-			$mail->Username = 'verification@alghaim.com';
-			$mail->Password = 'Alghaim2022';
-			$mail->setFrom('verification@alghaim.com', 'Verification');
+			$mail->Username = 'no-reply@grap.store';
+			$mail->Password = 'Grap2022';
+			$mail->setFrom('no-reply@grap.store', 'Grap Store No Reply');
 		}
 
 		if (is_array($to)) {

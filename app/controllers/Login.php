@@ -109,7 +109,7 @@ class Login extends Controller {
 
 			$this->status($status);
 
-			if ($status['success']) {
+			if (isset($status['success'])) {
 				$user_id = $this->user->login($_SESSION['tmp_email'], md5($_SESSION['tmp_password']));
 				if ($user_id) {
 					
@@ -121,7 +121,7 @@ class Login extends Controller {
 				}
 			}
 
-			$this->view('login', ['status' => $status]);
+			$this->view('login', ['status' => $status], false);
 		
 		}
 
